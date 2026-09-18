@@ -9,14 +9,10 @@ import {
   fetchJobsByName,
   clearSearchResults,
 } from "@/component/list-job/slice";
-<<<<<<< HEAD
 import {
   fetchJobsByDetailType,
   setHoveredSubCategory,
 } from "@/component/type-job/slice";
-
-const suggestions = ["App", "HTML", "Website", "Logo design", "JavaScript", "Marketing", "CSS"];
-=======
 
 const suggestions = [
   "App",
@@ -27,7 +23,6 @@ const suggestions = [
   "Marketing",
   "CSS",
 ];
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
 
 export default function Nav() {
   const searchParams = useSearchParams();
@@ -39,10 +34,7 @@ export default function Nav() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-<<<<<<< HEAD
-=======
   // Đồng bộ ô Input với search query
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
   useEffect(() => {
     setKeyword(querySearch);
   }, [querySearch]);
@@ -50,10 +42,7 @@ export default function Nav() {
   const { data: categories, loading: loadingCat } = useAppSelector(
     (state) => state.job.menuCategories
   );
-<<<<<<< HEAD
 
-=======
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
   const { data: searchResults, loading: loadingSearch } = useAppSelector(
     (state) => state.job.searchResults
   );
@@ -79,10 +68,7 @@ export default function Nav() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsOpenSearchDropdown(false);
-<<<<<<< HEAD
-=======
 
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
     if (!keyword.trim()) {
       router.push("/list-job");
     } else {
@@ -90,15 +76,12 @@ export default function Nav() {
     }
   };
 
-<<<<<<< HEAD
   // Hàm xử lý Hover vào Chi tiết loại công việc
   const handleItemHover = (id: number | string, name: string) => {
     dispatch(setHoveredSubCategory({ id, name }));
     dispatch(fetchJobsByDetailType(id));
   };
 
-=======
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
   return (
     <nav className="w-full bg-gray-100 text-gray-800 border-b relative z-50">
       {/* HEADER CHÍNH */}
@@ -110,10 +93,7 @@ export default function Nav() {
             </span>
           </Link>
 
-<<<<<<< HEAD
-=======
           {/* Ô Tìm Kiếm */}
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
           <div className="relative flex-1">
             <form
               onSubmit={handleSearchSubmit}
@@ -143,21 +123,14 @@ export default function Nav() {
               </button>
             </form>
 
-<<<<<<< HEAD
-=======
             {/* Dropdown Hiển Thị Gợi Ý Tìm Kiếm */}
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
             {isOpenSearchDropdown && (
               <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
                 {loadingSearch ? (
                   <div className="p-3 text-xs text-gray-400 text-center">Đang tìm kiếm...</div>
                 ) : searchResults && searchResults.length > 0 ? (
                   <ul className="divide-y divide-gray-100">
-<<<<<<< HEAD
                     {searchResults.map((item) => (
-=======
-                    {searchResults.map((item: any) => (
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
                       <li key={item.id}>
                         <Link
                           href={`/job-detail/${item.id}`}
@@ -189,18 +162,11 @@ export default function Nav() {
           </div>
         </div>
 
-<<<<<<< HEAD
+        {/* Action Buttons */}
         <div className="flex items-center gap-6 text-sm font-semibold text-gray-600">
           <a href="#" className="hover:text-green-600 transition">Become a Seller</a>
           <Link href="/form-signin" className="hover:text-green-600 transition">Sign In</Link>
           <Link href="/form-login">
-=======
-        {/* Action Buttons */}
-        <div className="flex items-center gap-6 text-sm font-semibold text-gray-600">
-          <a href="#" className="hover:text-green-600 transition">Become a Seller</a>
-          <Link href="./form-signin" className="hover:text-green-600 transition">Sign In</Link>
-          <Link href="./form-login">
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
             <button className="border border-green-500 text-green-600 hover:bg-green-600 hover:text-white px-4 py-1.5 rounded font-semibold text-sm transition">
               Join
             </button>
@@ -208,11 +174,7 @@ export default function Nav() {
         </div>
       </div>
 
-<<<<<<< HEAD
-      {/* MEGA DROPDOWN MENU */}
-=======
       {/* MENU DANH MỤC (MEGA DROPDOWN) */}
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
       <div className="max-w-7xl mx-auto px-6 relative border-t border-gray-200">
         {loadingCat ? (
           <div className="text-xs text-gray-400 py-2.5">Đang tải danh mục...</div>
@@ -220,17 +182,11 @@ export default function Nav() {
           <ul className="flex items-center justify-between gap-6 overflow-x-auto text-sm text-gray-600">
             {categories?.map((cat) => (
               <li key={cat.id} className="group py-2.5">
-<<<<<<< HEAD
                 <Link href={`/type-job?typeId=${cat.id}`}>
                   <span className="hover:text-green-600 cursor-pointer transition font-medium whitespace-nowrap group-hover:border-b-2 group-hover:border-green-500 pb-2">
                     {cat.tenLoaiCongViec}
                   </span>
                 </Link>
-=======
-                <span className="hover:text-green-600 cursor-pointer transition font-medium whitespace-nowrap group-hover:border-b-2 group-hover:border-green-500 pb-2">
-                  {cat.tenLoaiCongViec}
-                </span>
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
 
                 {cat.dsNhomChiTietLoai && cat.dsNhomChiTietLoai.length > 0 && (
                   <div className="absolute left-0 top-full w-full bg-[#e5e5e5] text-gray-800 shadow-xl border-t border-gray-300 opacity-0 invisible translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-in-out z-50">
@@ -240,7 +196,6 @@ export default function Nav() {
                           <h4 className="font-bold text-gray-900 text-sm tracking-tight">
                             {group.tenNhom}
                           </h4>
-<<<<<<< HEAD
                           <ul className="space-y-2 text-xs md:text-sm text-gray-600 font-normal">
                             {group.dsChiTietLoai?.map((detail) => (
                               <li key={detail.id}>
@@ -248,16 +203,6 @@ export default function Nav() {
                                   href={`/type-job?detailId=${detail.id}&name=${encodeURIComponent(detail.tenChiTiet)}`}
                                   onMouseEnter={() => handleItemHover(detail.id, detail.tenChiTiet)}
                                   className="hover:text-black hover:underline transition-colors block py-0.5"
-=======
-
-                          <ul className="space-y-2 text-xs md:text-sm text-gray-600 font-normal">
-                            {group.dsChiTietLoai?.map((detail) => (
-                              <li key={detail.id}>
-                                {/* CHUYỂN HƯỚNG BẰNG CATEGORY PARAM - KHÔNG QUA Ô INPUT SEARCH */}
-                                <Link
-                                  href={`/list-job?category=${encodeURIComponent(detail.tenChiTiet)}&detailId=${detail.id}`}
-                                  className="hover:text-black transition-colors block py-0.5"
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
                                 >
                                   {detail.tenChiTiet}
                                 </Link>
