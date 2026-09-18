@@ -52,9 +52,7 @@ export type JobItem = {
 };
 
 // Type dạng mảng nếu API trả về danh sách
-<<<<<<< HEAD
 export type JobList = JobItem[];
-
 
 // 1. Type cho đối tượng công việc bên trong (congViec)
 export type TCongViecDetail = {
@@ -83,6 +81,3 @@ export type TJobByDetailType = {
 
 // 3. Type cho danh sách dữ liệu trả về từ API
 export type TJobByDetailTypeList = TJobByDetailType[];
-=======
-export type JobList = JobItem[];
->>>>>>> 08908376300fac491f4357334bbd4a624a8f9d71
