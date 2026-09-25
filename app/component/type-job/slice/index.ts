@@ -1,16 +1,16 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "@/services/api";
-import { TJobByDetailType } from "@/types";
+import { LoaiCongViec } from "@/types";
 
-export const getJobsByDetailTypeApi = (maChiTietLoai: number | string) => {
-  return api.get(`cong-viec/lay-cong-viec-theo-chi-tiet-loai/${maChiTietLoai}`);
+export const getJobsByDetailTypeApi = (maLoaiCongviec: number | string) => {
+  return api.get(`cong-viec/lay-chi-tiet-loai-cong-viec/${maLoaiCongviec}`);
 };
 
 export const fetchJobsByDetailType = createAsyncThunk(
   "jobDetailType/fetchJobsByDetailType",
-  async (maChiTietLoai: number | string, { rejectWithValue }) => {
+  async (maLoaiCongviec: number | string, { rejectWithValue }) => {
     try {
-      const response = await getJobsByDetailTypeApi(maChiTietLoai);
+      const response = await getJobsByDetailTypeApi(maLoaiCongviec);
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(
@@ -23,7 +23,7 @@ export const fetchJobsByDetailType = createAsyncThunk(
 interface JobDetailTypeState {
   jobsByDetailType: {
     loading: boolean;
-    data: TJobByDetailType[] | null;
+    data: LoaiCongViec[] | null;
     error: string | null;
   };
   hoveredSubCategory: {

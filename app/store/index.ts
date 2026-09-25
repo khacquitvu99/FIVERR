@@ -1,19 +1,20 @@
 import { configureStore } from "@reduxjs/toolkit";
-import jobReducer from "@/component/list-job/slice";
-import jobDetailTypeReducer from "@/component/type-job/slice";
+import jobReducer from "@/component/list-job/slice"; // File jobSlice đã chứa toàn bộ state
+import jobDetailReducer from "@/component/detail-job/slice";
+import authReducer from "@/services/auth-silce"; // File authSlice đã chứa toàn bộ state
+
 export const store = configureStore({
   reducer: {
     job: jobReducer,
-
-    jobDetailType: jobDetailTypeReducer,
-    // Thêm các slice khác tại đây (ví dụ: auth, user, v.v.)
+    jobDetail: jobDetailReducer,
+    auth: authReducer,
+    // Thêm các slice khác tại đây (ví dụ: user, v.v.)
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Tránh lỗi warning serialization nếu có
+      serializableCheck: false,
     }),
 });
 
-// RootState và AppDispatch dùng để định nghĩa Type chuẩn cho Redux
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

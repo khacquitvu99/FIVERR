@@ -1,6 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { LoaiCongViec, JobItem, TInitialState } from "@/types";
+import {
+  LoaiCongViec,
+  JobItem,
+  TJobByDetailType,
+  TInitialState,
+} from "@/types";
+
 import api from "@/services/api";
+import { addAsyncCases } from "@/services/sliceExtra";
 
 // -------------------------------------------------------------
 // 1. API HELPER FUNCTIONS
@@ -20,9 +27,14 @@ export const getAllJobsApi = () => {
 export const getCongViecTheoTenApi = (tenCongViec: string) => {
   return api.get(
     `cong-viec/lay-danh-sach-cong-viec-theo-ten/${encodeURIComponent(
-      tenCongViec
-    )}`
+      tenCongViec,
+    )}`,
   );
+};
+
+// API Lấy danh sách công việc theo chi tiết loại (MaChiTietLoai)
+export const getJobsByDetailTypeApi = (MaChiTietLoai: number | string) => {
+  return api.get(`cong-viec/lay-cong-viec-theo-chi-tiet-loai/${MaChiTietLoai}`);
 };
 
 // -------------------------------------------------------------
@@ -32,6 +44,12 @@ export const getCongViecTheoTenApi = (tenCongViec: string) => {
 interface JobState {
   menuCategories: TInitialState<LoaiCongViec[]>;
   searchResults: TInitialState<JobItem[]>;
+  // STATE Quản lý danh sách công việc theo chi tiết loại & thông tin danh mục đang chọn
+  jobsByDetailType: TInitialState<TJobByDetailType[]>;
+  hoveredSubCategory: {
+    id: number | string | null;
+    name: string;
+  };
 }
 
 const initialState: JobState = {
@@ -44,6 +62,15 @@ const initialState: JobState = {
     loading: false,
     data: null,
     error: null,
+  },
+  jobsByDetailType: {
+    loading: false,
+    data: null,
+    error: null,
+  },
+  hoveredSubCategory: {
+    id: null,
+    name: "",
   },
 };
 
@@ -60,10 +87,10 @@ export const fetchMenuCategories = createAsyncThunk(
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Lỗi tải danh mục menu"
+        error.response?.data?.message || "Lỗi tải danh mục menu",
       );
     }
-  }
+  },
 );
 
 // Thunk 2: Lấy toàn bộ danh sách công việc
@@ -75,10 +102,10 @@ export const fetchAllJobs = createAsyncThunk(
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Lỗi tải danh sách công việc"
+        error.response?.data?.message || "Lỗi tải danh sách công việc",
       );
     }
-  }
+  },
 );
 
 // Thunk 3: Tìm kiếm công việc theo tên
@@ -90,10 +117,26 @@ export const fetchJobsByName = createAsyncThunk(
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Lỗi tìm kiếm công việc"
+        error.response?.data?.message || "Lỗi tìm kiếm công việc",
       );
     }
-  }
+  },
+);
+
+// THUNK 4: Lấy công việc theo Chi Tiết Loại
+export const fetchJobsByDetailType = createAsyncThunk(
+  "job/fetchJobsByDetailType",
+  async (MaChiTietLoai: number | string, { rejectWithValue }) => {
+    try {
+      const response = await getJobsByDetailTypeApi(MaChiTietLoai);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Lỗi tải danh sách công việc theo danh mục",
+      );
+    }
+  },
 );
 
 // -------------------------------------------------------------
@@ -109,52 +152,26 @@ const jobSlice = createSlice({
       state.searchResults.error = null;
       state.searchResults.loading = false;
     },
+    // Lưu ID và Name của danh mục phụ người dùng đang di chuột/click
+    setHoveredSubCategory: (
+      state,
+      action: { payload: { id: number | string; name: string } },
+    ) => {
+      state.hoveredSubCategory = action.payload;
+    },
   },
   extraReducers: (builder) => {
-    builder
-      // Xử lý fetchMenuCategories
-      .addCase(fetchMenuCategories.pending, (state) => {
-        state.menuCategories.loading = true;
-        state.menuCategories.error = null;
-      })
-      .addCase(fetchMenuCategories.fulfilled, (state, action) => {
-        state.menuCategories.loading = false;
-        state.menuCategories.data = action.payload;
-      })
-      .addCase(fetchMenuCategories.rejected, (state, action) => {
-        state.menuCategories.loading = false;
-        state.menuCategories.error = action.payload as string;
-      })
-
-      // Xử lý fetchAllJobs (Lấy tất cả công việc)
-      .addCase(fetchAllJobs.pending, (state) => {
-        state.searchResults.loading = true;
-        state.searchResults.error = null;
-      })
-      .addCase(fetchAllJobs.fulfilled, (state, action) => {
-        state.searchResults.loading = false;
-        state.searchResults.data = action.payload;
-      })
-      .addCase(fetchAllJobs.rejected, (state, action) => {
-        state.searchResults.loading = false;
-        state.searchResults.error = action.payload as string;
-      })
-
-      // Xử lý fetchJobsByName (Tìm kiếm công việc)
-      .addCase(fetchJobsByName.pending, (state) => {
-        state.searchResults.loading = true;
-        state.searchResults.error = null;
-      })
-      .addCase(fetchJobsByName.fulfilled, (state, action) => {
-        state.searchResults.loading = false;
-        state.searchResults.data = action.payload;
-      })
-      .addCase(fetchJobsByName.rejected, (state, action) => {
-        state.searchResults.loading = false;
-        state.searchResults.error = action.payload as string;
-      });
+    builder;
+    // Xử lý fetchMenuCategories
+    addAsyncCases(builder, fetchMenuCategories, "menuCategories");
+    // Xử lý fetchAllJobs (Lấy tất cả công việc)
+    addAsyncCases(builder, fetchAllJobs, "searchResults");
+    // Xử lý fetchJobsByName (Tìm kiếm công việc)
+    addAsyncCases(builder, fetchJobsByName, "searchResults");
+    // Xử lý fetchJobsByDetailType (Lấy công việc theo chi tiết loại)
+    addAsyncCases(builder, fetchJobsByDetailType, "jobsByDetailType");
   },
 });
 
-export const { clearSearchResults } = jobSlice.actions;
+export const { clearSearchResults, setHoveredSubCategory } = jobSlice.actions;
 export default jobSlice.reducer;

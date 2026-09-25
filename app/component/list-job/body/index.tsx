@@ -4,12 +4,31 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Card from "@/component/list-job/card";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchJobsByName, fetchAllJobs } from "@/component/list-job/slice";
+import {
+  fetchJobsByName,
+  fetchAllJobs,
+  fetchJobsByDetailType,
+} from "@/component/list-job/slice";
+
+// Chuẩn hoá về mảng công việc, kể cả khi API bọc dữ liệu trong dsCongViec
+const extractJobs = (content: any): any[] => {
+  if (!content) return [];
+  if (Array.isArray(content)) {
+    if (content.length && Array.isArray(content[0]?.dsCongViec)) {
+      return content.flatMap((c: any) => c.dsCongViec);
+    }
+    return content;
+  }
+  if (Array.isArray(content.dsCongViec)) return content.dsCongViec;
+  return [];
+};
 
 export default function ListJobBody() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
   const categoryQuery = searchParams.get("category") || "";
+  const detailType = searchParams.get("detailType") || ""; // ID sub-item từ Nav
+  const detailName = searchParams.get("name") || ""; // Tên sub-item từ Nav
 
   const dispatch = useAppDispatch();
 
@@ -18,13 +37,23 @@ export default function ListJobBody() {
   const itemsPerPage = 12;
 
   // Lấy dữ liệu từ Redux Store
-  const { data: jobList, loading } = useAppSelector(
-    (state) => state.job.searchResults
+  const { searchResults, jobsByDetailType } = useAppSelector(
+    (state) => state.job
   );
 
-  // Reset về trang 1 và fetch dữ liệu khi tham số tìm kiếm hoặc danh mục thay đổi
+  // Có detailType thì đọc từ jobsByDetailType, ngược lại đọc từ searchResults
+  const source = detailType ? jobsByDetailType : searchResults;
+  const { data, loading, error } = source;
+  const jobList = extractJobs(data);
+
+  // Reset về trang 1 và fetch dữ liệu khi tham số trên URL thay đổi
   useEffect(() => {
     setCurrentPage(1);
+
+    if (detailType) {
+      dispatch(fetchJobsByDetailType(detailType));
+      return;
+    }
 
     const keyword = categoryQuery.trim() || searchQuery.trim();
     if (keyword) {
@@ -32,16 +61,14 @@ export default function ListJobBody() {
     } else {
       dispatch(fetchAllJobs());
     }
-  }, [searchQuery, categoryQuery, dispatch]);
+  }, [searchQuery, categoryQuery, detailType, dispatch]);
 
   // Tính toán dữ liệu phân trang
-  const totalItems = jobList ? jobList.length : 0;
+  const totalItems = jobList.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentJobs = jobList
-    ? jobList.slice(startIndex, startIndex + itemsPerPage)
-    : [];
+  const currentJobs = jobList.slice(startIndex, startIndex + itemsPerPage);
 
   // Hàm chuyển trang & tự động scroll lên đầu
   const handlePageChange = (page: number) => {
@@ -51,24 +78,25 @@ export default function ListJobBody() {
     }
   };
 
+  // Tiêu đề: ưu tiên sub-item > category > search > tất cả
+  const heading = detailType ? detailName || "Services" : categoryQuery;
+
   return (
     <div className="w-full bg-white flex flex-col gap-6 pb-16">
       <div className="max-w-7xl mx-auto px-6 w-full">
         {/* Header hiển thị tiêu đề linh hoạt theo ngữ cảnh */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between my-4 gap-2">
-          {categoryQuery ? (
+          {heading ? (
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                {categoryQuery}
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900">{heading}</h2>
               <p className="text-sm text-gray-500">
-                Explore services related to {categoryQuery}
+                Explore services related to {heading}
               </p>
             </div>
           ) : searchQuery.trim() ? (
             <h2 className="text-xl font-bold text-gray-800">
               Results for{" "}
-              <span className="text-green-600">"{searchQuery}"</span>
+              <span className="text-green-600">&quot;{searchQuery}&quot;</span>
             </h2>
           ) : (
             <h2 className="text-xl font-bold text-gray-800">All Services</h2>
@@ -88,11 +116,18 @@ export default function ListJobBody() {
           </div>
         )}
 
+        {/* Trạng thái lỗi */}
+        {!loading && error && (
+          <div className="text-center py-16 text-red-500 font-medium">
+            {String(error)}
+          </div>
+        )}
+
         {/* Trạng thái không tìm thấy kết quả */}
-        {!loading && totalItems === 0 && (
+        {!loading && !error && totalItems === 0 && (
           <div className="text-center py-16 text-gray-500">
             <p className="text-lg font-semibold mb-1">
-              {categoryQuery || searchQuery.trim()
+              {heading || searchQuery.trim()
                 ? `Không tìm thấy công việc phù hợp với từ khóa.`
                 : "Hiện chưa có công việc nào."}
             </p>
@@ -114,7 +149,6 @@ export default function ListJobBody() {
             {/* Bộ điều hướng phân trang (Pagination Bar) */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-12">
-                {/* Nút Prev */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
@@ -123,7 +157,6 @@ export default function ListJobBody() {
                   &lt;
                 </button>
 
-                {/* Các nút trang */}
                 {Array.from({ length: totalPages }, (_, index) => {
                   const pageNum = index + 1;
                   return (
@@ -141,7 +174,6 @@ export default function ListJobBody() {
                   );
                 })}
 
-                {/* Nút Next */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
