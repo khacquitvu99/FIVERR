@@ -110,7 +110,7 @@ export default function FiverrHome() {
             <div className="md:col-span-5 relative flex justify-end items-end h-full">
               <div className="relative">
                 <img
-                  src="/NO-BACGROUND.png"
+                  src="/image.png"
                   alt="Gabrielle Video Editor"
                   className="w-full max-w-xs md:max-w-sm object-contain"
                 />

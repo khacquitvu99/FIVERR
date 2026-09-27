@@ -3,8 +3,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import Skill from "@/component/userprofile/skill";
-import Extend from "@/component/userprofile/extend";
 import {
   fetchUserById,
   uploadAvatar,
@@ -368,8 +366,6 @@ export default function EditProfilePage() {
           </div>
         </form>
       </div>
-      <Skill/>
-      <Extend/>
     </div>
   );
 }

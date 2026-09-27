@@ -13,37 +13,37 @@ const services = [
     id: 1,
     title: 'Logo Design',
     desc: 'Build your brand',
-    imageUrl: '/1.webp',
+    imageUrl: '/1.png',
   },
   {
     id: 2,
     title: 'WordPress',
     desc: 'Customize your site',
-    imageUrl: '/2.webp',
+    imageUrl: '/2.png',
   },
   {
     id: 3,
     title: 'Voice Over',
     desc: 'Share your message',
-    imageUrl: '/4.webp',
+    imageUrl: '/3.png',
   },
   {
     id: 4,
     title: 'Video Explainer',
     desc: 'Engage your audience',
-    imageUrl: '/5.webp',
+    imageUrl: '/4.png',
   },
   {
     id: 5,
     title: 'Social Media',
     desc: 'Reach more customers',
-    imageUrl: '/6.webp',
+    imageUrl: '/5.png',
   },
   {
     id: 6,
     title: 'SEO',
     desc: 'Get found online',
-    imageUrl: '/7.webp',
+    imageUrl: '/6.png',
   },
 ];
 
