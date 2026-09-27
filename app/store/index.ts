@@ -1,14 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import jobReducer from "@/component/list-job/slice"; // File jobSlice đã chứa toàn bộ state
+import jobReducer from "@/component/list-job/slice"; 
 import jobDetailReducer from "@/component/detail-job/slice";
-import authReducer from "@/services/auth-silce"; // File authSlice đã chứa toàn bộ state
+import authReducer from "@/services/auth-slice";
+import userReducer from "@/services/userSlice";
 
 export const store = configureStore({
   reducer: {
     job: jobReducer,
     jobDetail: jobDetailReducer,
     auth: authReducer,
-    // Thêm các slice khác tại đây (ví dụ: user, v.v.)
+    user: userReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

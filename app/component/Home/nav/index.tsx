@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import NavUser from "@/component/nav-user";
 
-export default function FiverrHero() {
+export default function FiverrHome() {
   const [keyword, setKeyword] = useState<string>("");
   const router = useRouter();
 
@@ -27,23 +28,15 @@ export default function FiverrHero() {
         <div className="max-w-7xl mx-auto px-6 py-4 md:py-6 flex flex-col justify-between min-h-80 md:min-h-95">
           {/* 1. Header Navigation */}
           <header className="flex items-center justify-between mb-4">
-            <Link href="/" className="text-2xl font-black tracking-tighter text-white cursor-pointer">
+            <Link
+              href="/"
+              className="text-2xl font-black tracking-tighter text-white cursor-pointer"
+            >
               fiverr<span className="text-green-500">.</span>
             </Link>
-            <nav className="flex items-center space-x-6 text-sm font-medium">
-              <Link href="#" className="hover:opacity-80 transition">
-                Become a Seller
-              </Link>
-              <Link href="/form-signin" className="hover:opacity-80 transition">
-                Sign In
-              </Link>
-              <Link
-                href="/form-login"
-                className="border border-white px-4 py-1.5 rounded hover:bg-white hover:text-[#8f2b0f] transition duration-200"
-              >
-                Join
-              </Link>
-            </nav>
+
+            {/* Cụm điều hướng NavUser */}
+              <NavUser />
           </header>
 
           {/* 2. Main Content Grid */}
@@ -57,7 +50,7 @@ export default function FiverrHero() {
                 services for your business
               </h1>
 
-              {/* Ô tìm kiếm dạng Form có thể Enter hoặc Click Search */}
+              {/* Ô tìm kiếm dạng Form */}
               <form
                 onSubmit={handleSearchSubmit}
                 className="flex w-full max-w-lg bg-white rounded overflow-hidden shadow-md"

@@ -3,6 +3,7 @@ import Nav from "./component/Home/nav";
 import Carousel from "./component/Home/caurosel";
 import FeaturesSection from "./component/Home/FeaturesSection";
 import Explore from "./component/Home/explore";
+import Footer from "@/component/footer";
 export default function Home() {
   return (
     <div>
@@ -10,6 +11,7 @@ export default function Home() {
       <Carousel />
       <FeaturesSection />
       <Explore />
+      <Footer />
     </div>
   );
 }

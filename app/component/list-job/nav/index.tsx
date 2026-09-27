@@ -4,21 +4,13 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import NavUser from "@/component/nav-user";
+
 import {
   fetchMenuCategories,
   fetchJobsByName,
   clearSearchResults,
 } from "@/component/list-job/slice";
-
-const suggestions = [
-  "App",
-  "HTML",
-  "Website",
-  "Logo design",
-  "JavaScript",
-  "Marketing",
-  "CSS",
-];
 
 export default function Nav() {
   const searchParams = useSearchParams();
@@ -27,7 +19,7 @@ export default function Nav() {
   const [keyword, setKeyword] = useState<string>(querySearch);
   const [isOpenSearchDropdown, setIsOpenSearchDropdown] = useState(false);
   const [activeCategory, setActiveCategory] = useState<number | string | null>(
-    null
+    null,
   );
 
   const dispatch = useAppDispatch();
@@ -37,7 +29,7 @@ export default function Nav() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { menuCategories, searchResults } = useAppSelector(
-    (state) => state.job
+    (state) => state.job,
   );
 
   // Đồng bộ ô input với URL (back/forward, click tag gợi ý...)
@@ -49,7 +41,7 @@ export default function Nav() {
     dispatch(fetchMenuCategories());
   }, [dispatch]);
 
-  // Click ra ngoài ô tìm kiếm thì đóng dropdown
+  // Click ra ngoài ô tìm kiếm thì đóng dropdown tìm kiếm
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -93,7 +85,7 @@ export default function Nav() {
     setKeyword(value);
     setIsOpenSearchDropdown(false);
     router.push(
-      value ? `/list-job?search=${encodeURIComponent(value)}` : "/list-job"
+      value ? `/list-job?search=${encodeURIComponent(value)}` : "/list-job",
     );
   };
 
@@ -190,7 +182,7 @@ export default function Nav() {
                                   {job.tenCongViec}
                                 </p>
                                 <p className="text-[11px] text-gray-500">
-                                  ${job.giaTien} • ★ {job.saoCongViec || 5}
+                                  ${job.giaTien} ★ {job.saoCongViec || 5}
                                 </p>
                               </div>
                             </Link>
@@ -216,26 +208,18 @@ export default function Nav() {
           </div>
         </div>
 
-        {/* Nút hành động */}
-        <div className="flex items-center gap-6 text-sm font-semibold text-gray-600">
-          <a href="#" className="hidden md:inline hover:text-green-600 transition">
-            Become a Seller
-          </a>
-          <Link href="/form-signin" className="hover:text-green-600 transition">
-            Sign In
-          </Link>
-          <Link href="/form-login">
-            <button className="border border-green-500 text-green-600 hover:bg-green-600 hover:text-white px-4 py-1.5 rounded font-semibold text-sm transition">
-              Join
-            </button>
-          </Link>
+        {/* NÚT HÀNH ĐỘNG / TÀI KHOẢN */}
+        <div className="**:text-gray-600! p-4 rounded-4xl **:hover:text-green-500!">
+          <NavUser />
         </div>
       </div>
 
       {/* MEGA MENU */}
       <div className="max-w-7xl mx-auto px-6 relative border-t border-gray-200">
         {menuCategories.loading ? (
-          <div className="text-xs text-gray-400 py-2.5">Loading categories...</div>
+          <div className="text-xs text-gray-400 py-2.5">
+            Loading categories...
+          </div>
         ) : (
           <ul className="flex items-center justify-between gap-6 overflow-x-auto text-sm text-gray-600">
             {menuCategories.data?.map((cat: any) => {
@@ -281,7 +265,7 @@ export default function Nav() {
                                     onClick={() =>
                                       handleSelectSubCategory(
                                         detail.id,
-                                        detail.tenChiTiet
+                                        detail.tenChiTiet,
                                       )
                                     }
                                     className="hover:text-black hover:underline transition-colors block py-0.5 text-left w-full cursor-pointer"
@@ -301,23 +285,6 @@ export default function Nav() {
             })}
           </ul>
         )}
-      </div>
-
-      {/* TAG GỢI Ý */}
-      <div className="w-full bg-gray-100 border-t border-gray-200 py-2">
-        <div className="max-w-7xl mx-auto px-6 flex items-center gap-2 overflow-x-auto text-sm">
-          <span className="font-bold text-gray-700 mr-1 text-xs">Suggested:</span>
-          {suggestions.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => goToSearch(item)}
-              className="bg-white border border-gray-300 hover:bg-gray-200 text-gray-600 text-xs font-medium px-3 py-1 rounded-md transition whitespace-nowrap shadow-sm"
-            >
-              {item}
-            </button>
-          ))}
-        </div>
       </div>
     </nav>
   );

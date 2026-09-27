@@ -1,16 +1,70 @@
+// ==========================================
+// 1. GENERIC & BASE TYPES
+// ==========================================
+
 export type TInitialState<T> = {
   loading: boolean;
   data: null | T;
-  error: null | any;
+  error: null | string | any;
 };
 
-// 1. Type cho từng chi tiết loại công việc
+// Cấu trúc Response chung cho API Cybersoft / Fiverr
+export type ApiResponse<T> = {
+  statusCode: number;
+  content: T;
+  dateTime: string;
+  message?: string;
+};
+
+// ==========================================
+// 2. USER & AUTH TYPES
+// ==========================================
+
+// Model User chuẩn từ API Fiverr
+export interface UserInfo {
+  id: number;
+  name: string;
+  email: string;
+  password?: string;
+  phone: string;
+  birthday: string;
+  avatar?: string;
+  gender: boolean;
+  role: string;
+  skill: string[];
+  certification: string[];
+}
+
+// Type Payload khi Đăng ký (bỏ id)
+export type RegisterPayload = Omit<UserInfo, "id">;
+
+// Type Payload khi Đăng nhập
+export type LoginPayload = Pick<UserInfo, "email"> & {
+  password: string;
+};
+
+// Type lưu thông tin User vào Redux (bỏ password)
+export type AuthUser = Omit<UserInfo, "password">;
+
+// Type lưu trạng thái Auth trong Redux Store
+export interface AuthState {
+  user: AuthUser | null;
+  token: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
+// ==========================================
+// 3. CÔNG VIỆC & LOẠI CÔNG VIỆC TYPES
+// ==========================================
+
+// Type cho từng chi tiết loại công việc
 export type DetailType = {
   id: number;
   tenChiTiet: string;
 };
 
-// 2. Type cho nhóm chi tiết loại công việc
+// Type cho nhóm chi tiết loại công việc
 export type GroupDetailType = {
   id: number;
   tenNhom: string;
@@ -19,14 +73,14 @@ export type GroupDetailType = {
   dsChiTietLoai: DetailType[];
 };
 
-// 3. Type cho loại công việc chính (Root Type)
+// Type cho loại công việc chính (Root Type)
 export type LoaiCongViec = {
   id: number;
   tenLoaiCongViec: string;
   dsNhomChiTietLoai: GroupDetailType[];
 };
 
-// Type định nghĩa cho đối tượng công việc bên trong
+// Core Object Công việc (dùng chung cho các response chi tiết)
 export type CongViec = {
   id: number;
   tenCongViec: string;
@@ -40,7 +94,7 @@ export type CongViec = {
   saoCongViec: number;
 };
 
-// Type định nghĩa cho toàn bộ đối tượng chính
+// Type JobItem tổng hợp (Bao gồm object CongViec và thông tin người tạo)
 export type JobItem = {
   id: number;
   congViec: CongViec;
@@ -51,87 +105,22 @@ export type JobItem = {
   avatar: string;
 };
 
-// Type dạng mảng nếu API trả về danh sách
+// Alias tái sử dụng giúp đồng nhất các type
+export type JobDetailResponse = JobItem;
+export type TJobByDetailType = JobItem;
 export type JobList = JobItem[];
+export type TJobByDetailTypeList = JobItem[];
 
-//////////////////////////////////////////////////////
-//************************************************ */
+// ==========================================
+// 4. THUÊ CÔNG VIỆC TYPES
+// ==========================================
 
-// 1. Type cho đối tượng công việc bên trong (congViec)
-export type TCongViecDetail = {
-  id: number;
-  tenCongViec: string;
-  danhGia: number;
-  giaTien: number;
-  nguoiTao: number;
-  hinhAnh: string;
-  moTa: string;
-  maChiTietLoaiCongViec: number;
-  moTaNgan: string;
-  saoCongViec: number;
-};
-
-// 2. Type cho đối tượng công việc hoàn chỉnh theo chi tiết loại
-export type TJobByDetailType = {
-  id: number;
-  congViec: TCongViecDetail;
-  tenLoaiCongViec: string;
-  tenNhomChiTietLoai: string;
-  tenChiTietLoai: string;
-  tenNguoiTao: string;
-  avatar: string;
-};
-
-// 3. Type cho danh sách dữ liệu trả về từ API
-export type TJobByDetailTypeList = TJobByDetailType[];
-
-
-//////////////////////////////////////////////////////
-//************************************************ */
-
-// Type object 'congViec' bên trong
-export type CongViecDetail = {
-  id: number;
-  tenCongViec: string;
-  danhGia: number;
-  giaTien: number;
-  nguoiTao: number;
-  hinhAnh: string;
-  moTa: string;
-  maChiTietLoaiCongViec: number;
-  moTaNgan: string;
-  saoCongViec: number;
-};
-
-// Type object tổng (Content trả về từ API lay-cong-viec-chi-tiet)
-export type JobDetailResponse = {
-  id: number;
-  congViec: CongViecDetail;
-  tenLoaiCongViec: string;
-  tenNhomChiTietLoai: string;
-  tenChiTietLoai: string;
-  tenNguoiTao: string;
-  avatar: string;
-};
-
-// Type cấu trúc chuẩn của API Response CyberSoft (nếu cần)
-export type JobDetailApiResponse = {
-  statusCode: number;
-  content: JobDetailResponse;
-  dateTime: string;
-};
-
-//////////////////////////////////////////////////////
-//************************************************ */
-
-// Type cho body gửi lên khi thực hiện POST /api/thue-cong-viec
 export type ThueCongViecPayload = {
   maCongViec: number;
   ngayThue: string;
   hoanThanh?: boolean;
 };
 
-// Type đại diện cho object kết quả trả về từ API thuê công việc
 export type ThueCongViecResponse = {
   id: number;
   maCongViec: number;
@@ -140,8 +129,9 @@ export type ThueCongViecResponse = {
   hoanThanh: boolean;
 };
 
-//////////////////////////////////////////////////////
-//***********Cấu trúc comment******************* */
+// ==========================================
+// 5. BÌNH LUẬN / COMMENT TYPES
+// ==========================================
 
 export type CommentItem = {
   id: number;
@@ -153,3 +143,18 @@ export type CommentItem = {
   maCongViec?: number;
   maNguoiBinhLuan?: number;
 };
+
+// ==========================================
+// 5. Edit/upload profile
+// ==========================================
+export interface UpdateUserPayload {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  birthday: string;
+  gender: boolean;
+  role: string;
+  skill: string[];
+  certification: string[];
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const filterDropdowns = [
   "Category",
@@ -11,13 +11,42 @@ const filterDropdowns = [
   "Delivery Time",
 ];
 
+const suggestions = [
+  "App",
+  "HTML",
+  "Website",
+  "Logo design",
+  "JavaScript",
+  "Marketing",
+  "CSS",
+];
+
 export default function FilterHeader() {
-  const searchParams = useSearchParams();
-  
-  
+  const router = useRouter();
+
+  const handleSuggestedClick = (term: string) => {
+    router.push(`/list-job?search=${encodeURIComponent(term.trim())}`);
+  };
+
   return (
-    <div className="w-full bg-white py-6 border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-6">
+    <div className="w-full bg-white border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-6 py-4 space-y-4">
+        {/* TAG GỢI Ý (SUGGESTED) */}
+        <div className="flex items-center gap-2 overflow-x-auto text-sm pt-2 border-t border-gray-100">
+          <span className="font-bold text-gray-700 mr-1 text-xs whitespace-nowrap">
+            Suggested:
+          </span>
+          {suggestions.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => handleSuggestedClick(item)}
+              className="bg-gray-50 border border-gray-300 hover:bg-gray-200 text-gray-600 text-xs font-medium px-3 py-1 rounded-md transition whitespace-nowrap shadow-sm cursor-pointer"
+            >
+              {item}
+            </button>
+          ))}
+        </div>
 
         {/* Filters Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -26,7 +55,7 @@ export default function FilterHeader() {
             {filterDropdowns.map((filter, idx) => (
               <button
                 key={idx}
-                className="border border-gray-300 hover:border-gray-400 text-gray-700 px-3.5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 bg-white transition"
+                className="border border-gray-300 hover:border-gray-400 text-gray-700 px-3.5 py-2 rounded-md text-sm font-semibold flex items-center gap-2 bg-white transition cursor-pointer"
               >
                 {filter}
                 <svg
