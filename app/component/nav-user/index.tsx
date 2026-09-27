@@ -109,14 +109,14 @@ export default function UserNav() {
       ) : (
         <>
           <Link
-            href="/form-sigin"
+            href="/auth/form-sigin"
             className="text-white hover:text-green-400 font-medium transition-colors"
           >
             Sign In
           </Link>
 
           <Link
-            href="/form-login"
+            href="/auth/form-login"
             className="text-white border border-white px-4 py-1.5 rounded hover:bg-green-600 hover:border-green-600 font-medium transition-all"
           >
             Join
