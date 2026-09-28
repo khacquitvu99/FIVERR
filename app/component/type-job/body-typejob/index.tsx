@@ -1,25 +1,28 @@
 "use client";
 
-import React from "react";
 import { useAppSelector } from "@/store/hooks";
-import CategoryCard from "@/component/type-job/card-typejob"; // Nhập component vừa tạo
+import CategoryCard from "@/component/type-job/card-typejob";
+import { JobDetailTypeState } from "@/component/type-job/slice";
 
 export default function ExploreCategorySection() {
-  const { jobsByDetailType, hoveredSubCategory } = useAppSelector(
-    (state) => state.jobDetailType
+  // 1. Lấy state từ Redux, thêm phòng thủ || {} cho hoveredSubCategory
+  const { jobsByDetailType, hoveredSubCategory = {} } = useAppSelector(
+    (state: any) => state.jobDetailType || state.jobDetail || {}
   );
-  const { data: categories, loading, error } = jobsByDetailType;
+
+  // 2. Gán || {} để nếu jobsByDetailType bị undefined thì không bị crash dòng 11
+  const { data: categories = [], loading, error } = jobsByDetailType || {};
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 py-8">
       {/* Header Section */}
       <div className="mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-          {hoveredSubCategory.name
+          {hoveredSubCategory?.name
             ? `Explore ${hoveredSubCategory.name}`
             : "Explore Categories"}
         </h2>
-        {hoveredSubCategory.name && (
+        {hoveredSubCategory?.name && (
           <p className="text-sm text-gray-500 mt-1">
             Hiển thị danh sách nhóm dịch vụ liên quan
           </p>
@@ -29,7 +32,7 @@ export default function ExploreCategorySection() {
       {/* UI Trạng thái */}
       {loading && <LoadingSkeleton />}
       {error && !loading && <ErrorMessage message={error} />}
-      {!hoveredSubCategory.id && !loading && (
+      {!hoveredSubCategory?.id && !loading && (
         <div className="p-12 text-center bg-gray-50 rounded-xl text-gray-500 border border-dashed border-gray-300">
           Rê chuột vào các danh mục trên menu để xem danh sách chi tiết.
         </div>

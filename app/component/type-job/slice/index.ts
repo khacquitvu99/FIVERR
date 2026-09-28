@@ -20,7 +20,8 @@ export const fetchJobsByDetailType = createAsyncThunk(
   }
 );
 
-interface JobDetailTypeState {
+// 1. Export Interface này để component có thể import xài trực tiếp
+export interface JobDetailTypeState {
   jobsByDetailType: {
     loading: boolean;
     data: LoaiCongViec[] | null;

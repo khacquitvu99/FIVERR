@@ -47,7 +47,7 @@ export default function UserCard({ userId }: { userId?: string | number }) {
   }, [dispatch, userId]);
 
   const handleEditProfile = () => {
-    router.push("/edit-profile");
+    router.push("/auth/edit-profile");
   };
 
   // Tránh đụng độ Hydration bằng cách trả về null hoặc Skeleton khung chứa trước khi mounted
