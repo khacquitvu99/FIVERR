@@ -1,67 +1,69 @@
 "use client";
-
-import React from "react";
-import Link from "next/link";
-
-interface SubCategory {
-  id: number | string;
+// 1. Interface ánh xạ chính xác 100% theo Payload từ Slice / API Cybersoft
+export interface SubCategory {
+  id: number;
   tenChiTiet: string;
 }
 
+export interface GroupCategory {
+  id: number;
+  tenNhom: string;
+  hinhAnh: string;
+  maLoaiCongViec: number;
+  dsChiTietLoai: SubCategory[];
+}
+/*  */
 interface CategoryCardProps {
-  item: {
-    id: number | string;
-    tenNhom?: string;
-    tenChiTiet?: string;
-    hinhAnh?: string;
-    congViec?: {
-      hinhAnh?: string;
-      tenCongViec?: string;
-    };
-    dsChiTietLoai?: SubCategory[];
-  };
+  item: GroupCategory;
+  onSelectSubCategory: (subId: number, subName: string) => void;
+  selectedSubId?: number | string | null;
 }
 
-export default function CategoryCard({ item }: CategoryCardProps) {
-  const title = item.tenNhom || item.tenChiTiet || item.congViec?.tenCongViec;
-  const image = item.hinhAnh || item.congViec?.hinhAnh || "/placeholder.png";
+export default function CategoryCard({
+  item,
+  onSelectSubCategory,
+  selectedSubId,
+}: CategoryCardProps) {
+  
+  // Lấy dữ liệu thuần túy từ Object `item` truyền từ Slice xuống
+  const { tenNhom, hinhAnh, dsChiTietLoai } = item;
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Hình ảnh */}
-      <div className="relative w-full h-48 rounded-xl overflow-hidden bg-[#e8f8f0]">
-        <img
-          src={image}
-          alt={title || "category"}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-        />
+    <div className="flex flex-col gap-3 font-sans">
+      {/* 1. Hình ảnh nhóm động từ API */}
+      <div className="w-full h-40 bg-gray-100 rounded-xl overflow-hidden shadow-sm">
+        {hinhAnh && (
+          <img
+            src={hinhAnh}
+            alt={tenNhom}
+            className="w-full h-full object-cover rounded-lg hover:scale-105 transition-transform duration-300"
+          />
+        )}
       </div>
 
-      {/* Tiêu đề */}
-      <h3 className="text-xl font-bold text-gray-900 mt-1">{title}</h3>
+      {/* 2. Tiêu đề nhóm động từ API */}
+      <h3 className="text-lg font-bold text-gray-900 mt-1">{tenNhom}</h3>
 
-      {/* Danh sách danh mục con */}
-      {item.dsChiTietLoai && item.dsChiTietLoai.length > 0 ? (
-        <ul className="flex flex-col gap-2.5">
-          {item.dsChiTietLoai.map((sub) => (
+      {/* 3. Danh sách các chi tiết loại động từ API */}
+      <ul className="flex flex-col gap-1.5 text-gray-600 font-medium text-sm">
+        {dsChiTietLoai?.map((sub) => {
+          const isSelected = selectedSubId === sub.id;
+
+          return (
             <li key={sub.id}>
-              <Link
-                href={`/list-job/${sub.id}`}
-                className="text-gray-600 hover:text-gray-900 text-base transition-colors inline-block"
+              <button
+                type="button"
+                onClick={() => onSelectSubCategory(sub.id, sub.tenChiTiet)}
+                className={`text-left hover:text-green-600 hover:underline transition-colors py-0.5 block w-full ${
+                  isSelected ? "text-green-600 font-bold underline" : ""
+                }`}
               >
                 {sub.tenChiTiet}
-              </Link>
+              </button>
             </li>
-          ))}
-        </ul>
-      ) : (
-        <Link
-          href={`/job-detail/${item.id}`}
-          className="text-gray-600 hover:text-green-600 text-sm font-medium transition-colors"
-        >
-          Xem chi tiết →
-        </Link>
-      )}
+          );
+        })}
+      </ul>
     </div>
   );
 }

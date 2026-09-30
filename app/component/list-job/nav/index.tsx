@@ -94,12 +94,6 @@ export default function Nav() {
     goToSearch(keyword);
   };
 
-  // Click sub-item: đóng menu và chuyển sang trang list-job
-  const handleSelectSubCategory = (id: number | string, name: string) => {
-    setActiveCategory(null);
-    router.push(`/list-job?detailType=${id}&name=${encodeURIComponent(name)}`);
-  };
-
   return (
     <nav className="w-full bg-gray-100 text-gray-800 border-b relative z-50">
       {/* HEADER CHÍNH */}
@@ -252,7 +246,7 @@ export default function Nav() {
                       }`}
                     >
                       <div className="max-w-7xl mx-auto px-8 py-6 grid grid-cols-2 md:grid-cols-4 gap-x-12 gap-y-6 max-h-112.5 overflow-y-auto">
-                        {cat.dsNhomChiTietLoai.map((group: any) => (
+                        {cat.dsNhomChiTietLoai?.map((group: any) => (
                           <div key={group.id} className="space-y-3">
                             <h4 className="font-bold text-gray-900 text-sm tracking-tight">
                               {group.tenNhom}
@@ -260,18 +254,15 @@ export default function Nav() {
                             <ul className="space-y-2 text-xs md:text-sm text-gray-600 font-normal">
                               {group.dsChiTietLoai?.map((detail: any) => (
                                 <li key={detail.id}>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleSelectSubCategory(
-                                        detail.id,
-                                        detail.tenChiTiet,
-                                      )
-                                    }
+                                  <Link
+                                    href={`/type-job?detailType=${detail.id}&name=${encodeURIComponent(
+                                      detail.tenChiTiet || "",
+                                    )}`}
+                                    onClick={() => setActiveCategory(null)}
                                     className="hover:text-black hover:underline transition-colors block py-0.5 text-left w-full cursor-pointer"
                                   >
                                     {detail.tenChiTiet}
-                                  </button>
+                                  </Link>
                                 </li>
                               ))}
                             </ul>

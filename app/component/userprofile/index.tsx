@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Skill from "./skill";
 import Extend from "./extend";
 
+
 export default function UserCard({ userId }: { userId?: string | number }) {
   const router = useRouter();
   const dispatch = useAppDispatch();

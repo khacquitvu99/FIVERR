@@ -1,14 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-
-// Giữ export này để list-job page không bị lỗi import
-export type CardDataType = "search" | "menu" | "all";
 
 interface CardProps {
   jobData: any;
-  type?: CardDataType;
 }
 
 const FALLBACK_IMAGE = "/placeholder.png";
@@ -19,8 +15,7 @@ export default function Card({ jobData }: CardProps) {
   const [imgError, setImgError] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
 
-  // API search/menu: { id, congViec: {...}, tenNguoiTao, avatar }
-  // API "all": chính là object công việc
+  // Tự động nhận biết: nếu có jobData.congViec (dạng Search) thì lấy, không thì dùng jobData (dạng Fetch All)
   const job = jobData?.congViec ?? jobData ?? {};
   const jobId = job.id ?? jobData?.id ?? "";
   const sellerName = jobData?.tenNguoiTao ?? job.tenNguoiTao ?? "Seller";
@@ -30,13 +25,10 @@ export default function Card({ jobData }: CardProps) {
   const reviews = Number(job.danhGia) || 0;
   const price = Number(job.giaTien) || 0;
 
-  // Nếu không có jobId hợp lệ thì không render card (tránh link hỏng "/detail-job/")
+  // Nếu không có jobId thì không render card
   if (!jobId) return null;
 
-  const detailHref = `/detail-job/${jobId}`;
-
   const handleToggleLike = (e: React.MouseEvent) => {
-    // Chặn không cho click lan ra Link cha (nếu card được bọc Link)
     e.preventDefault();
     e.stopPropagation();
     setLiked((prev) => !prev);
@@ -44,7 +36,7 @@ export default function Card({ jobData }: CardProps) {
 
   return (
     <Link
-      href={detailHref}
+      href={`/detail-job/${jobId}`}
       className="border border-gray-200 rounded-md overflow-hidden bg-white hover:shadow-lg transition-shadow duration-200 flex flex-col justify-between h-full cursor-pointer"
     >
       <div>
@@ -120,7 +112,7 @@ export default function Card({ jobData }: CardProps) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.684a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.684a4.5 4.5 0 000 6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
             />
           </svg>
         </button>

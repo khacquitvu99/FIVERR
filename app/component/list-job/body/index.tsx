@@ -4,31 +4,18 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Card from "@/component/list-job/card";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  fetchJobsByName,
-  fetchAllJobs,
-  fetchJobsByDetailType,
-} from "@/component/list-job/slice";
+import { fetchJobsByName, fetchAllJobs } from "@/component/list-job/slice";
 
-// Chuẩn hoá về mảng công việc, kể cả khi API bọc dữ liệu trong dsCongViec
+// Chuẩn hoá về mảng công việc từ API
 const extractJobs = (content: any): any[] => {
   if (!content) return [];
-  if (Array.isArray(content)) {
-    if (content.length && Array.isArray(content[0]?.dsCongViec)) {
-      return content.flatMap((c: any) => c.dsCongViec);
-    }
-    return content;
-  }
-  if (Array.isArray(content.dsCongViec)) return content.dsCongViec;
+  if (Array.isArray(content)) return content;
   return [];
 };
 
 export default function ListJobBody() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
-  const categoryQuery = searchParams.get("category") || "";
-  const detailType = searchParams.get("detailType") || ""; // ID sub-item từ Nav
-  const detailName = searchParams.get("name") || ""; // Tên sub-item từ Nav
 
   const dispatch = useAppDispatch();
 
@@ -37,31 +24,23 @@ export default function ListJobBody() {
   const itemsPerPage = 12;
 
   // Lấy dữ liệu từ Redux Store
-  const { searchResults, jobsByDetailType } = useAppSelector(
-    (state) => state.job
+  const { data, loading, error } = useAppSelector(
+    (state) => state.job.searchResults,
   );
 
-  // Có detailType thì đọc từ jobsByDetailType, ngược lại đọc từ searchResults
-  const source = detailType ? jobsByDetailType : searchResults;
-  const { data, loading, error } = source;
   const jobList = extractJobs(data);
 
-  // Reset về trang 1 và fetch dữ liệu khi tham số trên URL thay đổi
+  // Khi từ khóa thay đổi: Nếu có keyword -> search theo name, nếu rỗng -> fetch toàn bộ
   useEffect(() => {
     setCurrentPage(1);
 
-    if (detailType) {
-      dispatch(fetchJobsByDetailType(detailType));
-      return;
-    }
-
-    const keyword = categoryQuery.trim() || searchQuery.trim();
+    const keyword = searchQuery.trim();
     if (keyword) {
       dispatch(fetchJobsByName(keyword));
     } else {
       dispatch(fetchAllJobs());
     }
-  }, [searchQuery, categoryQuery, detailType, dispatch]);
+  }, [searchQuery, dispatch]);
 
   // Tính toán dữ liệu phân trang
   const totalItems = jobList.length;
@@ -78,22 +57,12 @@ export default function ListJobBody() {
     }
   };
 
-  // Tiêu đề: ưu tiên sub-item > category > search > tất cả
-  const heading = detailType ? detailName || "Services" : categoryQuery;
-
   return (
     <div className="w-full bg-white flex flex-col gap-6 pb-16">
       <div className="max-w-7xl mx-auto px-6 w-full">
-        {/* Header hiển thị tiêu đề linh hoạt theo ngữ cảnh */}
+        {/* Header hiển thị tiêu đề */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between my-4 gap-2">
-          {heading ? (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{heading}</h2>
-              <p className="text-sm text-gray-500">
-                Explore services related to {heading}
-              </p>
-            </div>
-          ) : searchQuery.trim() ? (
+          {searchQuery.trim() ? (
             <h2 className="text-xl font-bold text-gray-800">
               Results for{" "}
               <span className="text-green-600">&quot;{searchQuery}&quot;</span>
@@ -127,12 +96,12 @@ export default function ListJobBody() {
         {!loading && !error && totalItems === 0 && (
           <div className="text-center py-16 text-gray-500">
             <p className="text-lg font-semibold mb-1">
-              {heading || searchQuery.trim()
-                ? `Không tìm thấy công việc phù hợp với từ khóa.`
+              {searchQuery.trim()
+                ? "Không tìm thấy công việc phù hợp với từ khóa."
                 : "Hiện chưa có công việc nào."}
             </p>
             <p className="text-sm text-gray-400">
-              Hãy thử lại bằng một danh mục hoặc từ khóa khác.
+              Hãy thử lại bằng một từ khóa khác.
             </p>
           </div>
         )}

@@ -1,16 +1,31 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/services/api";
-import { LoaiCongViec } from "@/types";
 
-export const getJobsByDetailTypeApi = (maLoaiCongviec: number | string) => {
-  return api.get(`cong-viec/lay-chi-tiet-loai-cong-viec/${maLoaiCongviec}`);
-};
-
-export const fetchJobsByDetailType = createAsyncThunk(
-  "jobDetailType/fetchJobsByDetailType",
-  async (maLoaiCongviec: number | string, { rejectWithValue }) => {
+// 1. API Lấy nhóm chi tiết loại công việc & chi tiết loại công việc theo MaLoaiCongViec
+export const fetchChiTietLoaiCongViec = createAsyncThunk(
+  "jobDetailType/fetchChiTietLoaiCongViec",
+  async (maLoaiCongViec: number | string, { rejectWithValue }) => {
     try {
-      const response = await getJobsByDetailTypeApi(maLoaiCongviec);
+      const response = await api.get(
+        `cong-viec/lay-chi-tiet-loai-cong-viec/${maLoaiCongViec}`
+      );
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Lỗi khi lấy danh sách loại công việc"
+      );
+    }
+  }
+);
+
+// 2. API Lấy danh sách công việc theo MaChiTietLoai khi người dùng bấm vào 1 chi tiết loại
+export const fetchCongViecTheoChiTietLoai = createAsyncThunk(
+  "jobDetailType/fetchCongViecTheoChiTietLoai",
+  async (maChiTietLoai: number | string, { rejectWithValue }) => {
+    try {
+      const response = await api.get(
+        `cong-viec/lay-cong-viec-theo-chi-tiet-loai/${maChiTietLoai}`
+      );
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(
@@ -20,28 +35,31 @@ export const fetchJobsByDetailType = createAsyncThunk(
   }
 );
 
-// 1. Export Interface này để component có thể import xài trực tiếp
-export interface JobDetailTypeState {
-  jobsByDetailType: {
+interface JobDetailTypeState {
+  categories: {
     loading: boolean;
-    data: LoaiCongViec[] | null;
+    data: any[] | null;
     error: string | null;
   };
-  hoveredSubCategory: {
-    id: number | string | null;
-    name: string;
+  jobsBySubDetail: {
+    loading: boolean;
+    data: any[] | null;
+    error: string | null;
+    selectedSubId: number | string | null;
   };
 }
 
 const initialState: JobDetailTypeState = {
-  jobsByDetailType: {
+  categories: {
     loading: false,
     data: null,
     error: null,
   },
-  hoveredSubCategory: {
-    id: null,
-    name: "",
+  jobsBySubDetail: {
+    loading: false,
+    data: null,
+    error: null,
+    selectedSubId: null,
   },
 };
 
@@ -49,38 +67,49 @@ const jobDetailTypeSlice = createSlice({
   name: "jobDetailType",
   initialState,
   reducers: {
-    setHoveredSubCategory: (
-      state,
-      action: PayloadAction<{ id: number | string; name: string }>
-    ) => {
-      state.hoveredSubCategory = action.payload;
-    },
-    clearJobsByDetailType: (state) => {
-      state.jobsByDetailType = {
+    clearTypeJobState: (state) => {
+      state.categories = { loading: false, data: null, error: null };
+      state.jobsBySubDetail = {
         loading: false,
         data: null,
         error: null,
+        selectedSubId: null,
       };
-      state.hoveredSubCategory = { id: null, name: "" };
     },
   },
   extraReducers: (builder) => {
+    // Xử lý API 1: Lay chi tiet loai cong viec
     builder
-      .addCase(fetchJobsByDetailType.pending, (state) => {
-        state.jobsByDetailType.loading = true;
-        state.jobsByDetailType.error = null;
+      .addCase(fetchChiTietLoaiCongViec.pending, (state) => {
+        state.categories.loading = true;
+        state.categories.error = null;
       })
-      .addCase(fetchJobsByDetailType.fulfilled, (state, action) => {
-        state.jobsByDetailType.loading = false;
-        state.jobsByDetailType.data = action.payload;
+      .addCase(fetchChiTietLoaiCongViec.fulfilled, (state, action) => {
+        state.categories.loading = false;
+        state.categories.data = action.payload;
       })
-      .addCase(fetchJobsByDetailType.rejected, (state, action) => {
-        state.jobsByDetailType.loading = false;
-        state.jobsByDetailType.error = action.payload as string;
+      .addCase(fetchChiTietLoaiCongViec.rejected, (state, action) => {
+        state.categories.loading = false;
+        state.categories.error = action.payload as string;
+      });
+
+    // Xử lý API 2: Lay cong viec theo chi tiet loai
+    builder
+      .addCase(fetchCongViecTheoChiTietLoai.pending, (state, action) => {
+        state.jobsBySubDetail.loading = true;
+        state.jobsBySubDetail.error = null;
+        state.jobsBySubDetail.selectedSubId = action.meta.arg;
+      })
+      .addCase(fetchCongViecTheoChiTietLoai.fulfilled, (state, action) => {
+        state.jobsBySubDetail.loading = false;
+        state.jobsBySubDetail.data = action.payload;
+      })
+      .addCase(fetchCongViecTheoChiTietLoai.rejected, (state, action) => {
+        state.jobsBySubDetail.loading = false;
+        state.jobsBySubDetail.error = action.payload as string;
       });
   },
 });
 
-export const { setHoveredSubCategory, clearJobsByDetailType } =
-  jobDetailTypeSlice.actions;
+export const { clearTypeJobState } = jobDetailTypeSlice.actions;
 export default jobDetailTypeSlice.reducer;
