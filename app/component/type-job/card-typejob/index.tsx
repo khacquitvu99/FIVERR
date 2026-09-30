@@ -1,5 +1,8 @@
 "use client";
-// 1. Interface ánh xạ chính xác 100% theo Payload từ Slice / API Cybersoft
+
+import React from "react";
+
+// Interface khớp 100% với JSON API
 export interface SubCategory {
   id: number;
   tenChiTiet: string;
@@ -12,7 +15,7 @@ export interface GroupCategory {
   maLoaiCongViec: number;
   dsChiTietLoai: SubCategory[];
 }
-/*  */
+
 interface CategoryCardProps {
   item: GroupCategory;
   onSelectSubCategory: (subId: number, subName: string) => void;
@@ -24,13 +27,12 @@ export default function CategoryCard({
   onSelectSubCategory,
   selectedSubId,
 }: CategoryCardProps) {
-  
-  // Lấy dữ liệu thuần túy từ Object `item` truyền từ Slice xuống
+  if (!item) return null;
+
   const { tenNhom, hinhAnh, dsChiTietLoai } = item;
 
   return (
     <div className="flex flex-col gap-3 font-sans">
-      {/* 1. Hình ảnh nhóm động từ API */}
       <div className="w-full h-40 bg-gray-100 rounded-xl overflow-hidden shadow-sm">
         {hinhAnh && (
           <img
@@ -41,10 +43,8 @@ export default function CategoryCard({
         )}
       </div>
 
-      {/* 2. Tiêu đề nhóm động từ API */}
       <h3 className="text-lg font-bold text-gray-900 mt-1">{tenNhom}</h3>
 
-      {/* 3. Danh sách các chi tiết loại động từ API */}
       <ul className="flex flex-col gap-1.5 text-gray-600 font-medium text-sm">
         {dsChiTietLoai?.map((sub) => {
           const isSelected = selectedSubId === sub.id;

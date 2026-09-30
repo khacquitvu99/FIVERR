@@ -1,44 +1,45 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/services/api";
 
-// 1. API Lấy nhóm chi tiết loại công việc & chi tiết loại công việc theo MaLoaiCongViec
+// 1. API Lấy chi tiết loại công việc (nhóm + danh mục con)
 export const fetchChiTietLoaiCongViec = createAsyncThunk(
   "jobDetailType/fetchChiTietLoaiCongViec",
   async (maLoaiCongViec: number | string, { rejectWithValue }) => {
     try {
       const response = await api.get(
-        `cong-viec/lay-chi-tiet-loai-cong-viec/${maLoaiCongViec}`
+        `cong-viec/lay-chi-tiet-loai-cong-viec/${maLoaiCongViec}`,
       );
+      // BẮT BUỘC .data.content để lấy đúng payload
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Lỗi khi lấy danh sách loại công việc"
+        error.response?.data?.message || "Lỗi khi lấy danh sách loại công việc",
       );
     }
-  }
+  },
 );
 
-// 2. API Lấy danh sách công việc theo MaChiTietLoai khi người dùng bấm vào 1 chi tiết loại
+// 2. API Lấy công việc theo chi tiết loại khi click sub-category
 export const fetchCongViecTheoChiTietLoai = createAsyncThunk(
   "jobDetailType/fetchCongViecTheoChiTietLoai",
   async (maChiTietLoai: number | string, { rejectWithValue }) => {
     try {
       const response = await api.get(
-        `cong-viec/lay-cong-viec-theo-chi-tiet-loai/${maChiTietLoai}`
+        `cong-viec/lay-cong-viec-theo-chi-tiet-loai/${maChiTietLoai}`,
       );
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Lỗi khi lấy danh sách công việc"
+        error.response?.data?.message || "Lỗi khi lấy danh sách công việc",
       );
     }
-  }
+  },
 );
 
 interface JobDetailTypeState {
   categories: {
     loading: boolean;
-    data: any[] | null;
+    data: any | null; // Chứa Object tổng hoặc Mảng từ API
     error: string | null;
   };
   jobsBySubDetail: {
@@ -78,7 +79,7 @@ const jobDetailTypeSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Xử lý API 1: Lay chi tiet loai cong viec
+    // Handling API 1: Lay chi tiet loai
     builder
       .addCase(fetchChiTietLoaiCongViec.pending, (state) => {
         state.categories.loading = true;
@@ -86,14 +87,18 @@ const jobDetailTypeSlice = createSlice({
       })
       .addCase(fetchChiTietLoaiCongViec.fulfilled, (state, action) => {
         state.categories.loading = false;
-        state.categories.data = action.payload;
+        // Nếu API trả về mảng 1 phần tử [ { id, dsNhomChiTietLoai } ] -> Lấy thẳng phần tử [0]
+        const rawContent = action.payload;
+        state.categories.data = Array.isArray(rawContent)
+          ? rawContent[0]
+          : rawContent;
       })
       .addCase(fetchChiTietLoaiCongViec.rejected, (state, action) => {
         state.categories.loading = false;
         state.categories.error = action.payload as string;
       });
 
-    // Xử lý API 2: Lay cong viec theo chi tiet loai
+    // Handling API 2: Lay cong viec theo chi tiet loai
     builder
       .addCase(fetchCongViecTheoChiTietLoai.pending, (state, action) => {
         state.jobsBySubDetail.loading = true;

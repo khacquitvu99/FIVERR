@@ -10,7 +10,6 @@ import {
   clearTypeJobState,
 } from "@/component/type-job/slice";
 
-
 import CategoryCard from "@/component/type-job/card-typejob";
 
 export default function TypeJobBody() {
@@ -71,7 +70,7 @@ export default function TypeJobBody() {
         ) : (
           categories.data && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {categories.data.map((groupItem: any) => (
+              {categories.data?.dsNhomChiTietLoai?.map((groupItem: any) => (
                 <CategoryCard
                   key={groupItem.id}
                   item={groupItem}

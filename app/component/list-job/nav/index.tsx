@@ -32,7 +32,6 @@ export default function Nav() {
     (state) => state.job,
   );
 
-  // Đồng bộ ô input với URL (back/forward, click tag gợi ý...)
   useEffect(() => {
     setKeyword(querySearch);
   }, [querySearch]);
@@ -41,7 +40,6 @@ export default function Nav() {
     dispatch(fetchMenuCategories());
   }, [dispatch]);
 
-  // Click ra ngoài ô tìm kiếm thì đóng dropdown tìm kiếm
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -55,14 +53,12 @@ export default function Nav() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Dọn timer khi unmount
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
 
-  // Chỉ gọi API khi NGƯỜI DÙNG gõ (không gọi khi keyword đổi do URL)
   const handleKeywordChange = (value: string) => {
     setKeyword(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -105,7 +101,7 @@ export default function Nav() {
             </span>
           </Link>
 
-          {/* Ô tìm kiếm */}
+          {/* Ô TÌM KIẾM */}
           <div className="relative flex-1" ref={searchBoxRef}>
             <form
               onSubmit={handleSearchSubmit}
@@ -147,7 +143,7 @@ export default function Nav() {
               </button>
             </form>
 
-            {/* Dropdown gợi ý */}
+            {/* DROPDOWN GỢI Ý */}
             {isOpenSearchDropdown && (
               <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
                 {searchResults.loading ? (
@@ -202,7 +198,7 @@ export default function Nav() {
           </div>
         </div>
 
-        {/* NÚT HÀNH ĐỘNG / TÀI KHOẢN */}
+        {/* NÚT TÀI KHOẢN */}
         <div className="**:text-gray-600! p-4 rounded-4xl **:hover:text-green-500!">
           <NavUser />
         </div>
@@ -227,16 +223,22 @@ export default function Nav() {
                   onMouseEnter={() => setActiveCategory(cat.id)}
                   onMouseLeave={() => setActiveCategory(null)}
                 >
-                  <span
-                    className={`cursor-pointer transition font-medium whitespace-nowrap pb-2 ${
+                  {/* Bọc Link chính cho tên loại công việc */}
+                  <Link
+                    href={`/type-job?typeId=${cat.id}&name=${encodeURIComponent(
+                      cat.tenLoaiCongViec || "",
+                    )}`}
+                    onClick={() => setActiveCategory(null)}
+                    className={`cursor-pointer transition font-medium whitespace-nowrap pb-2 block ${
                       isActive
                         ? "text-green-600 border-b-2 border-green-500"
                         : "hover:text-green-600"
                     }`}
                   >
                     {cat.tenLoaiCongViec}
-                  </span>
+                  </Link>
 
+                  {/* Mega Menu Dropdown */}
                   {hasGroups && (
                     <div
                       className={`absolute left-0 top-full w-full bg-[#e5e5e5] text-gray-800 shadow-xl border-t border-gray-300 transition-all duration-300 ease-in-out z-50 ${
@@ -255,7 +257,7 @@ export default function Nav() {
                               {group.dsChiTietLoai?.map((detail: any) => (
                                 <li key={detail.id}>
                                   <Link
-                                    href={`/type-job?detailType=${detail.id}&name=${encodeURIComponent(
+                                    href={`/type-job?typeId=${cat.id}&subId=${detail.id}&name=${encodeURIComponent(
                                       detail.tenChiTiet || "",
                                     )}`}
                                     onClick={() => setActiveCategory(null)}
